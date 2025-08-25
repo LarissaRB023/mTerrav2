@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Missão Terra — Números que Salvam</title>
+<style>
+:root{
+  --bg1:#1e293b; --bg2:#1a4d5c; --bg3:#23a06b;
+  --glass:rgba(255,255,255,.1);
+  --primary:#38d9a9; --accent:#7ab8ff; --warn:#ffe066;
+  --danger:#ef233c; --ok:#80ff72;
+  --card-radius:20px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:#eaf4ff; font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+  background:linear-gradient(160deg,var(--bg1),var(--bg2) 40%,var(--bg3) 100%);
+  min-height:100vh;
+}
+header.appbar{
+  position:fixed; inset:0 0 auto 0; height:58px; display:flex; align-items:center; justify-content:space-between;
+  padding:0 12px; backdrop-filter:blur(10px); background:linear-gradient(180deg,rgba(0,0,0,.22),rgba(0,0,0,.07));
+  border-bottom:1px solid rgba(255,255,255,.09); z-index:100;
+}
+.brand{display:flex; align-items:center; gap:10px; font-weight:700}
+.coins{display:flex; align-items:center; gap:7px; padding:5px 10px; border-radius:12px; background:var(--glass)}
+.coins i{font-style:normal}
+.top-actions{display:flex; gap:7px}
+.iconbtn{
+  border:none; background:var(--glass); color:#fff; padding:8px 12px; border-radius:14px; cursor:pointer;
+  transition:.15s transform,.2s box-shadow;
+}
+.iconbtn:hover{transform:scale(1.08)}
+.iconbtn:active{transform:scale(.97)}
+
+main {
+  margin-top: 58px; /* empurra o conteúdo abaixo do header fixo */
+  overflow: auto;
+  padding: 18px; /* padding mais confortável, não exagerado */
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  min-height: calc(100vh - 58px);
+  /* evita que o botão flutuante/lábio do aparelho cubra o conteúdo */
+  padding-bottom: max(24px, env(safe-area-inset-bottom, 0px) + 90px);
+}
+
+.screen{display:none; width:100%; max-width:480px; margin:auto; min-height:calc(100vh - 120px); padding:12px}
+.screen.active{display:block; animation:fade .3s}
+@keyframes fade{from{opacity:.3;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.glass{
+  background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.06));
+  border:1px solid rgba(255,255,255,.15); border-radius:var(--card-radius);
+  padding:16px 16px 18px 16px; box-shadow:0 6px 24px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.1);
+}
+
+.hero{display:grid; place-items:center; gap:12px; text-align:center}
+
+.earth-wrap{width:100%; max-width:320px; margin:auto; position:relative}
+.earth{
+  width:100%; height:auto; display:block; margin:auto; aspect-ratio:1/1;
+  animation:float 3.5s ease-in-out infinite;
+}
+
+body {
+  /* ...seu código existente... */
+  background-attachment: fixed;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+body::before {
+  /* ...seu código existente... */
+  position: fixed; /* mantém o fundo parado */
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+.eyes{animation:blink 5s infinite}
+@keyframes blink{0%,96%,100%{transform:scaleY(1)}97%,99%{transform:scaleY(.1)}}
+.shine{
+  position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(250px 170px at 24% 25%, rgba(255,255,255,.23), transparent 60%);
+  border-radius:50%; mix-blend-mode:screen; animation:shineMove 6s ease-in-out infinite;
+}
+@keyframes shineMove{0%,100%{transform:translate(0,0)}50%{transform:translate(7px,-11px)}}
+
+/* ====== BOTOES PRINCIPAIS (garantir que os 3 apareçam) ====== */
+.grid3{
+  display:flex; flex-wrap:wrap; gap:10px; width:100%; justify-content:center
+}
+.grid3 .cta{flex:1 1 240px; min-width:160px}
+
+/* ====== Buttons & inputs ====== */
+.cta{
+  border:none; border-radius:14px; padding:12px 14px; color:#1e293b; font-weight:700; letter-spacing:.2px;
+  background:linear-gradient(180deg,#e9f7ff,#bfe1ff); cursor:pointer;
+  box-shadow:0 6px 18px rgba(22,110,167,.22),inset 0 1px 0 rgba(255,255,255,.92);
+  margin:4px; font-size:1.08rem; transition:.13s transform,.2s box-shadow;
+}
+.cta:hover{transform:translateY(-2px); box-shadow:0 12px 28px rgba(22,110,167,.32)}
+.cta:active{transform:scale(.98)}
+.cta.accent{background:linear-gradient(180deg,#d1ffe7,#89f3bd)}
+.cta.warn{background:linear-gradient(180deg,#fff1d6,#ffd27a)}
+.cta.danger{background:linear-gradient(180deg,#ffd4d4,#ff9d9d)}
+.cta.dark{
+  background:linear-gradient(180deg,#27324b,#1b2338); color:#eaf4ff; border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 10px 24px rgba(0,0,0,.35);
+}
+
+.field{display:flex; flex-direction:column; gap:7px; margin:7px 0 13px}
+.input{
+  padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.07); color:#fff;
+  outline:none; box-shadow:inset 0 1px 0 rgba(255,255,255,.09);
+}
+.helper{opacity:.85; font-size:.98rem}
+
+/* Quiz */
+.quiz-wrap{display:grid; gap:13px}
+.question{font-size:1.12rem; line-height:1.5}
+.answers{display:grid; gap:8px}
+.ans{
+  text-align:left; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.12); cursor:pointer;
+  background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.03));
+  transition:.13s transform,.22s border,.22s background,.22s box-shadow;
+}
+.ans:hover{transform:translateY(-2px); border-color:rgba(255,255,255,.28)}
+.ans.selected{background:var(--glass); border-color:var(--accent)}
+.proj{font-size:.97rem; opacity:.95; border-left:3px solid rgba(255,255,255,.2); padding-left:11px}
+.progress{height:7px; border-radius:999px; background:rgba(255,255,255,.17); overflow:hidden}
+.bar{height:100%; width:0%; background:linear-gradient(90deg,#38d9a9,#7ab8ff); transition:width .28s}
+
+/* Cards & grids */
+.lvlgrid{display:grid; grid-template-columns:1fr; gap:10px; margin-top:7px}
+.level-card{padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.03))}
+.tag{font-size:.88rem; opacity:.85}
+.pill{display:inline-block; padding:6px 10px; border-radius:999px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.14)}
+.center{display:grid; place-items:center}
+
+/* Curiosidades - botão flutuante e card animado */
+#curioBtn{
+  position:fixed; left:18px; bottom:24px; z-index:999;
+  width:56px; height:56px; background:linear-gradient(180deg,#ffe066 80%,#fffbe6 100%);
+  box-shadow:0 7px 24px #2224,0 0 0 5px #ffe06680;
+  border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  animation:floatLamp 2s infinite alternate; border:none;
+}
+@keyframes floatLamp{0%{transform:translateY(0)}100%{transform:translateY(-12px)}}
+#curioBtn .led{
+  position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+  width:16px; height:8px; border-radius:8px;
+  background:radial-gradient(circle at 50% 50%, #fffde6 70%, #ffe066 100%);
+  box-shadow:0 0 12px 5px #ffee77; opacity:.7;
+}
+#curioBtn img{width:36px; height:36px; filter:drop-shadow(0 0 2px #fff8)}
+
+#curioCurios{
+  position:fixed; left:3vw; bottom:110px; z-index:1000;
+  min-width:85vw; max-width:98vw; max-height:60vh;
+  background:linear-gradient(180deg,#fffbe6 96%,#ffe066 100%);
+  border-radius:26px; box-shadow:0 7px 28px #2228; border:2px solid #ffe066;
+  padding:12px 7px 12px 12px; font-size:1.08rem; color:#222;
+  display:none; overflow-y:auto; animation:slideCurio .5s;
+}
+@keyframes slideCurio{from{transform:translateY(70px);opacity:0}to{transform:none;opacity:1}}
+#curioCurios h3{margin:0 0 8px 0; font-size:1.15rem; color:#bba600; text-align:left}
+#curioCurios .closeCurio{
+  position:absolute; top:9px; right:18px; font-size:1.3rem; background:none; border:none; color:#bba600; cursor:pointer; transition:.2s;
+}
+#curioCurios .closeCurio:hover{color:#222}
+#curioCurios ul{margin:8px 0 0 0; padding:0 0 0 18px}
+#curioCurios li{margin-bottom:7px}
+
+/* breakpoints */
+@media (min-width: 700px){
+  .screen{max-width:520px}
+  .lvlgrid{grid-template-columns:repeat(2,1fr)}
+  #curioCurios{min-width:320px;max-width:360px;left:20px}
+  #curioBtn{width:68px;height:68px}
+}
+@media (min-width: 1000px){
+  .screen{max-width:560px}
+  .lvlgrid{grid-template-columns:repeat(2,1fr)}
+  #curioCurios{min-width:320px;max-width:360px;left:28px}
+}
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="brand"><span style="font-size:22px">🌎</span> <span>Missão Terra</span></div>
+  <div class="coins"><i>⭐</i> <span id="coins">0</span></div>
+  <div class="top-actions">
+    <button class="iconbtn" title="Configurações" onclick="go('settings')">⚙️</button>
+    <button class="iconbtn" title="Roupas" onclick="go('wardrobe')">🧢</button>
+    <button class="iconbtn" title="Sair" onclick="logout()">🚪</button>
+  </div>
+</header>
+
+<main>
+  <!-- LOGIN -->
+  <section id="login" class="screen active">
+    <div class="glass login-card">
+      <h1 style="margin:6px 0 2px">Bem-vindo(a) ao <span style="color:var(--primary)">Missão Terra</span>!</h1>
+      <p class="helper">Entre para salvar o planeta jogando e aprendendo. 🌱</p>
+      <div class="field">
+        <label for="nickname">Seu nome</label>
+        <input id="nickname" class="input" placeholder="Digite seu nome..."/>
+      </div>
+      <button class="cta accent" style="width:100%" onclick="doLogin()">Entrar</button>
+    </div>
+  </section>
+
+  <!-- HOME -->
+  <section id="home" class="screen">
+    <div class="hero">
+      <div class="grid3">
+        <button class="cta dark" onclick="go('settings')">⚙️ Configurações</button>
+        <button class="cta dark" onclick="go('wardrobe')">🧢 Roupas</button>
+        <button class="cta dark" onclick="logout()">🚪 Sair</button>
+      </div>
+
+      <div class="earth-wrap">
+        <!-- Mascote animado -->
+        <svg class="earth" viewBox="0 0 200 200" aria-hidden="true">
+          <defs>
+            <radialGradient id="ocean" cx="50%" cy="45%" r="55%">
+              <stop offset="0%" stop-color="#7ccaff"/>
+              <stop offset="60%" stop-color="#2a7bd9"/>
+              <stop offset="100%" stop-color="#1346a6"/>
+            </radialGradient>
+            <radialGradient id="shine" cx="35%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="rgba(255,255,255,.23)"/>
+              <stop offset="60%" stop-color="rgba(255,255,255,.08)"/>
+              <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+            </radialGradient>
+            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#2a3b72" flood-opacity="0.5"/>
+            </filter>
+          </defs>
+          <circle cx="100" cy="100" r="90" fill="url(#ocean)" filter="url(#shadow)"/>
+          <g class="eyes">
+            <ellipse cx="72" cy="90" rx="13" ry="19" fill="#222"/>
+            <ellipse cx="128" cy="90" rx="13" ry="19" fill="#222"/>
+            <ellipse cx="72" cy="98" rx="6" ry="9" fill="#fff" opacity=".7"/>
+            <ellipse cx="128" cy="98" rx="6" ry="9" fill="#fff" opacity=".7"/>
+          </g>
+          <path d="M70,140 Q100,180 130,140" stroke="#222" stroke-width="7" fill="none" stroke-linecap="round"/>
+          <circle cx="62" cy="118" r="7" fill="#ffb3c1"/>
+          <circle cx="138" cy="118" r="7" fill="#ffb3c1"/>
+          <!-- Itens -->
+          <g id="layer-leafHat" style="display:none">
+            <path d="M55,60 Q100,18 145,60 Q120,50 100,58 Q80,53 55,60Z" fill="#23a06b" stroke="#158052" stroke-width="3"/>
+          </g>
+          <g id="layer-ecoGlasses" style="display:none">
+            <rect x="63" y="82" rx="7" ry="7" width="24" height="16" fill="rgba(0,0,0,.18)" stroke="#38d9a9" stroke-width="3"/>
+            <rect x="113" y="82" rx="7" ry="7" width="24" height="16" fill="rgba(0,0,0,.18)" stroke="#38d9a9" stroke-width="3"/>
+            <rect x="87" y="89" width="26" height="5" fill="#38d9a9"/>
+          </g>
+          <g id="layer-greenCape" style="display:none">
+            <path d="M100,155 Q65,175 45,190 Q155,190 135,175 Q100,155 100,155Z" fill="#23a06b" opacity=".72"/>
+          </g>
+          <circle cx="70" cy="60" r="32" fill="url(#shine)" opacity=".5"/>
+        </svg>
+        <div class="shine" aria-hidden="true"></div>
+      </div>
+
+      <!-- 3 botões principais -->
+      <div class="grid3">
+        <button class="cta accent" onclick="go('select')">🎮 Jogar</button>
+        <button class="cta warn" onclick="resetGame()">♻️ Reset</button>
+        <button class="cta" onclick="go('store')">🛒 Loja</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SELETOR DE NÍVEL -->
+  <section id="select" class="screen">
+    <div class="glass">
+      <h2>Escolha um nível</h2>
+      <p class="helper">Cada nível tem 1 pergunta. Ganhe ⭐ bônus conforme sua escolha!</p>
+      <div class="lvlgrid" id="levelGrid"></div>
+      <div style="margin-top:10px; display:flex; gap:7px; flex-wrap:wrap">
+        <button class="cta dark" onclick="go('home')">⬅️ Voltar</button>
+        <button class="cta" onclick="resetProgressConfirm()">🔄 Resetar progresso do quiz</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="screen">
+    <div class="glass quiz-wrap">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div>
+          <div class="tag">Nível</div>
+          <h3 id="quizLevel">—</h3>
+        </div>
+        <div style="min-width:160px;flex:1">
+          <div class="tag">Progresso</div>
+          <div class="progress"><div class="bar" id="bar"></div></div>
+        </div>
+        <div class="pill" id="qIndicator">Pergunta 1/1</div>
+      </div>
+      <div class="question" id="question">—</div>
+      <div class="answers" id="answers"></div>
+      <div id="projection" class="proj" style="display:none"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="cta dark" onclick="prevQuestion()">⬅️ Tentar novamente</button>
+        <button class="cta accent" onclick="nextQuestion()">Próxima ➡️</button>
+        <button class="cta" onclick="exitQuiz()">Sair do nível</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL -->
+  <section id="final" class="screen center" style="display:none">
+    <div class="glass" style="max-width:720px">
+      <h2>Parabéns!</h2>
+      <p>Sua escolha: <span id="finalChoice"></span></p>
+      <p>Você ganhou <span id="finalCoins"></span> ⭐!</p>
+      <button class="cta accent" onclick="go('home')">Voltar ao início</button>
+    </div>
+  </section>
+
+  <!-- LOJA -->
+  <section id="store" class="screen">
+    <div class="glass">
+      <h2>Loja</h2>
+      <p class="helper">Troque ⭐ por itens para o mascote.</p>
+      <div class="lvlgrid" id="storeGrid"></div>
+      <div style="margin-top:10px"><button class="cta dark" onclick="go('home')">⬅️ Voltar</button></div>
+    </div>
+  </section>
+
+  <!-- ROUPAS -->
+  <section id="wardrobe" class="screen">
+    <div class="glass">
+      <h2>Roupas</h2>
+      <p class="helper">Ative/desative os itens comprados pro mascote. Você pode combinar itens.</p>
+      <div class="lvlgrid" id="wardrobeGrid"></div>
+      <div style="margin-top:10px"><button class="cta dark" onclick="go('home')">⬅️ Voltar</button></div>
+    </div>
+  </section>
+
+  <!-- CONFIG -->
+  <section id="settings" class="screen">
+    <div class="glass">
+      <h2>Configurações</h2>
+      <div class="field">
+        <label>Nome</label>
+        <input id="nameEdit" class="input" placeholder="Seu nome"/>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="cta accent" onclick="saveSettings()">Salvar</button>
+        <button class="cta" onclick="go('home')">Voltar</button>
+        <button class="cta danger" onclick="logout()">Sair da conta</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Botão flutuante de curiosidades -->
+  <button id="curioBtn" title="Curiosidades">
+    <img src="https://img.icons8.com/fluency/48/000000/light-on.png" alt="Lâmpada"/>
+    <span class="led"></span>
+  </button>
+  <div id="curioCurios" role="dialog" aria-modal="true" aria-labelledby="curioTitle">
+    <button class="closeCurio" onclick="toggleCurio(false)" aria-label="Fechar">✖</button>
+ <h3 id="curioTitle">Curiosidades</h3>
+<ul>
+  <li>1. A mudança climática não é apenas uma coisa do futuro. Embora as mudanças de curto prazo possam ser menos extremas do que as mudanças projetadas para 2100, a alteração no clima já está ocorrendo e os riscos nos próximos 50 anos podem ser significativamente diferentes dos riscos atuais.</li>
+  <li>2. O dióxido de carbono constitui apenas 3,6% do total de gases de efeito estufa, dos quais 0,12% são atribuídos às atividades humanas.</li>
+  <li>3. Devido ao efeito estufa, a temperatura média da Terra é de 15°C ao invés de -18°C.</li>
+  <li>4. A temperatura média global é atualmente de 14°C. Os cientistas preveem que ela pode subir outros 6°C no século 21, se nada for modificado.</li>
+  <li>5. Normalmente, a luz solar irradia através da atmosfera da Terra e aquece a superfície, depois volta ao espaço. O aquecimento global ocorre quando o calor é retido pelos gases do efeito estufa e, em vez de irradiar de volta, continua a aquecer a superfície da Terra, elevando as temperaturas.</li>
+  <li>6. A temperatura global média sobre as superfícies terrestres e oceânicas de 2014 foi a maior de todos os anos, desde o início dos registros em 1880.</li>
+  <li>7. O buraco da camada de ozônio não tem muito a ver com a mudança climática. Ele consiste no afinamento da camada de moléculas de ozônio na atmosfera, causado por clorofluorcarbonos que costumavam ser usados de forma generalizada na fabricação. A camada de ozônio impede que muitos raios ultravioleta atinjam a Terra.</li>
+  <li>8. De acordo com o Programa Mundial de Alimentos (WPF.org), 375 milhões de pessoas são afetadas anualmente por desastres causados por mudanças climáticas.</li>
+  <li>9. Nos últimos 50 anos, a concentração de dióxido de carbono na atmosfera aumentou em 30% devido à queima de combustíveis fósseis e emissões de gases de efeito estufa, como dióxido de carbono, óxido nitroso e outros gases, aprisionando mais calor na baixa atmosfera.</li>
+  <li>10. O aumento das temperaturas causará mais mortes, não por razões naturais, mas como resultado de superaquecimento e disseminação rápida de doenças mortais.</li>
+  <li>11. Os preços dos alimentos aumentaram e continuarão a subir cerca de 60% até 2030, devido aos efeitos das mudanças climáticas nas lavouras e na pecuária.</li>
+  <li>12. Muitas doenças também são provocadas pela contaminação da água transportada para áreas atingidas pela seca.</li>
+  <li>13. Os principais gases de efeito estufa são: dióxido de carbono (CO₂), metano (CH₄) e óxido nitroso (N₂O).</li>
+</ul>
+  </div>
+</main>
+
+<script>
+/* ===== Utils ===== */
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+const STORAGE_KEY = 'missaoTerra_v3';
+const state = {
+  user:null, coins:0,
+  items:{
+    leafHat:   {owned:false,on:false,name:'Chapéu Folha',price:30},
+    ecoGlasses:{owned:false,on:false,name:'Óculos Sustentável',price:50},
+    greenCape: {owned:false,on:false,name:'Capa Verde',price:40}
+  },
+  levelsDone:{}, progress:{},
+};
+
+function save(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }
+function load(){
+  const raw=localStorage.getItem(STORAGE_KEY); if(!raw) return;
+  try{
+    const data=JSON.parse(raw);
+    state.user=data.user??state.user;
+    state.coins=data.coins??state.coins;
+    state.levelsDone=data.levelsDone??{};
+    state.progress=data.progress??{};
+    if(data.items){
+      Object.keys(state.items).forEach(k=>{
+        if(data.items[k]) state.items[k] = {...state.items[k], ...data.items[k]};
+      });
+    }
+  }catch{ /* ignore */ }
+}
+
+function go(id){
+  $$('.screen').forEach(s=>{
+    s.classList.remove('active');
+    if(s.id==='final') s.style.display='none';
+  });
+  const el=$('#'+id);
+  el.classList.add('active');
+  if(id==='final') el.style.display='block';
+  if(id==='select') renderLevelSelect();
+  if(id==='wardrobe') renderWardrobe();
+  if(id==='store') renderStore();
+  if(id==='home'){ updateCoins(); applyAvatarLayers(); }
+}
+
+function logout(){
+  if(confirm('Deseja sair?')){
+    state.user=null; save(); go('login'); updateCoins();
+  }
+}
+
+function doLogin(){
+  const name=$('#nickname').value.trim();
+  if(!name){alert('Digite seu nome 🙂');return;}
+  state.user=name; save(); $('#nameEdit').value=name; go('home');
+}
+function saveSettings(){
+  const name=$('#nameEdit').value.trim();
+  if(name){state.user=name;}
+  save(); go('home');
+}
+function updateCoins(){ $('#coins').textContent = state.coins||0; }
+
+function applyAvatarLayers(){
+  ['leafHat','ecoGlasses','greenCape'].forEach(id=>{
+    const layer=document.getElementById('layer-'+id);
+    if(layer) layer.style.display = (state.items[id] && state.items[id].on) ? '' : 'none';
+  });
+}
+
+/* ===== Loja & Guarda-roupa ===== */
+function renderStore(){
+  const grid=$('#storeGrid'); grid.innerHTML='';
+  Object.entries(state.items).forEach(([key,info])=>{
+    const card=document.createElement('div'); card.className='level-card';
+    card.innerHTML=`
+      <div style="font-weight:700">${info.name}</div>
+      <div class="helper">Custa ${info.price} ⭐</div>
+      ${info.owned
+        ? `<div class="pill">Comprado ✅</div>`
+        : `<button class="cta" onclick="buy('${key}',${info.price})">Comprar</button>`}
+    `;
+    grid.appendChild(card);
+  });
+}
+function renderWardrobe(){
+  const grid=$('#wardrobeGrid'); grid.innerHTML='';
+  Object.entries(state.items).forEach(([key,info])=>{
+    const card=document.createElement('div'); card.className='level-card';
+    card.innerHTML=`
+      <div style="font-weight:700">${info.name}</div>
+      <div class="helper">${info.owned?'Comprado':'Não comprado'}</div>
+      <div style="margin-top:7px;display:flex;gap:7px;flex-wrap:wrap">
+        ${info.owned
+          ? `<button class="cta ${info.on?'warn':''}" onclick="toggleItem('${key}')">${info.on?'Desativar':'Ativar'}</button>`
+          : `<button class="cta" onclick="go('store')">Ir à Loja</button>`}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+function buy(key,price){
+  const it=state.items[key];
+  if(!it){alert('Item inexistente');return;}
+  if(it.owned){alert('Você já tem esse item.');return;}
+  if((state.coins||0)<price){alert('Você precisa de mais ⭐ para comprar este item.');return;}
+  state.coins-=price; it.owned=true; it.on=true;
+  save(); updateCoins(); renderStore(); renderWardrobe(); applyAvatarLayers();
+  alert('Comprado!');
+}
+function toggleItem(key){
+  const it=state.items[key]; if(!it||!it.owned){alert('Compre o item primeiro na loja.');return;}
+  it.on=!it.on; save(); renderWardrobe(); applyAvatarLayers();
+}
+
+/* ===== QUIZ DATA ===== */
+const LEVELS = [
+  {
+    title: 'Nível 1 - LIXO',
+    theme: 'Lixo',
+    qs: [{
+      q: 'No Brasil, existem 3 mil lixões que recebem cerca de 45 milhões de toneladas de resíduos por ano, emitindo aproximadamente 27 milhões de toneladas de CO₂. Maria quer agir de forma concreta para reduzir esse impacto. O que ela deve fazer?',
+      opts: [
+        'A) Na casa de Maria, são separados 2 kg de lixo reciclável por dia e ela leva para a coleta seletiva.',
+        'B) Ela usa 2 kg de lixo orgânico por dia para adubar hortas em casa.',
+        'C) Maria não faz nada e descarta todo o lixo junto.'
+      ],
+      coins: [10,15,5],
+      proj: [
+        '➡️ Em um ano, ela terá separado 2 × 365 = 730 kg de lixo, o que representa 730 ÷ 1000 = 0,73 toneladas. 0,73 ÷ 45.000.000 = 0,0000000162 do total de lixo nacional. Aplicando essa fração às 27 milhões de toneladas de CO₂ emitidas pelos lixões, temos 27.000.000 × 0,0000000162 = 0,4374 toneladas de CO₂ evitadas por ano se replicado em larga escala. Esta é uma boa escolha, pois reduz a poluição e incentiva a reciclagem.',
+        '➡️ Em um ano, ela terá reaproveitado 2 × 365 = 730 kg de lixo, representando 730 ÷ 45.000.000 = 0,00001622 do total de resíduos. Aplicando essa fração às 27 milhões de toneladas de CO₂, obtemos ~437 toneladas de CO₂ evitadas por ano se replicado em larga escala. Opção excelente, com redução de GEE e adubo natural.',
+        '➡️ Neste caso, nenhum lixo é desviado e nenhuma tonelada de CO₂ é evitada, mantendo o problema ambiental.'
+      ]
+    }]
+  },
+  {
+    title: 'Nível 2 - ENERGIA',
+    theme: 'Energia',
+    qs: [{
+      q: 'Elisa vai assistir a um filme na TV. Considerando que a pegada de carbono média de uma hora de vídeo via streaming é de 55 g CO₂ e que a TV LED consome 50 W. Em qual das opções ela pode ajudar na redução da emissão de CO₂?',
+      opts: [
+        'A) Elisa deixa a TV ligada e sai por 30 minutos.',
+        'B) Elisa assiste normalmente, mas se afasta da sala por ~10 minutos.',
+        'C) Elisa só liga a TV no momento exato do filme e desliga ao terminar.'
+      ],
+      coins: [5,10,15],
+      proj: [
+        '➡️ Consumo extra: 50 W × 0,5 h = 25 Wh (0,025 kWh/dia). Em 30 dias: 0,75 kWh desperdiçados (~825 g CO₂/mês). Pior opção.',
+        '➡️ Consumo extra: 50 W × 0,166 h ≈ 8,3 Wh (0,0083 kWh/dia). Em 30 dias: ~0,25 kWh (~275 g CO₂/mês). Intermediária.',
+        '➡️ Sem desperdício extra. Melhor uso de energia, menor impacto ambiental.'
+      ]
+    }]
+  },
+  {
+    title: 'Nível 3 - AR',
+    theme: 'Ar',
+    qs: [{
+      q: 'Bernardo instala energia solar em casa. O sistema gera 180 kWh/mês. O impacto depende do uso:',
+      opts: [
+        'A) Sistema eficiente e uso consciente.',
+        'B) Sistema parcialmente aproveitado.',
+        'C) Sistema pouco aproveitado ou com desperdício.'
+      ],
+      coins: [15,10,5],
+      proj: [
+        '➡ Aproveitando toda a energia, evita ~3,56 kg CO₂/dia (~1,3 t/ano ≈ 65 árvores). Melhor escolha.',
+        '➡ Uso parcial: ~2 kg CO₂/dia (~0,73 t/ano ≈ 36 árvores). Intermediária.',
+        '➡ Pouco aproveitamento: ~1 kg CO₂/dia (~0,36 t/ano ≈ 18 árvores). Pior escolha.'
+      ]
+    }]
+  },
+  {
+    title: 'Nível 4 - ÁGUA',
+    theme: 'Água',
+    qs: [{
+      q: 'Um banho por dia. O gasto varia:',
+      opts: [
+        'A) Banho rápido.',
+        'B) Banho moderado.',
+        'C) Banho demorado.'
+      ],
+      coins: [15,10,5],
+      proj: [
+        '➡ 5 min ≈ 30 L/dia → 900 L/mês → 10.950 L/ano. Melhor opção.',
+        '➡ 10 min ≈ 60 L/dia → 1.800 L/mês → 21.900 L/ano. Intermediária.',
+        '➡ 15 min ≈ 90 L/dia → 2.700 L/mês → 32.850 L/ano. Pior opção.'
+      ]
+    }]
+  }
+];
+
+/* ===== Quiz Flow ===== */
+let currentLevel=0, qIndex=0, locked=false, pickedAnswer=null;
+
+function renderLevelSelect(){
+  const grid=$('#levelGrid'); grid.innerHTML='';
+  LEVELS.forEach((lv,idx)=>{
+    const i=idx+1, done=!!state.levelsDone[i];
+    const card=document.createElement('div'); card.className='level-card';
+    card.innerHTML=`
+      <div class="tag">${lv.theme}</div>
+      <h3 style="margin:4px 0 8px">${lv.title}</h3>
+      <div style="display:flex; gap:7px; align-items:center; flex-wrap:wrap">
+        <span class="pill">${done?'Concluído ✅':'1 pergunta'}</span>
+        ${done?`<span class="pill">⭐ bônus recebido</span>`:''}
+      </div>
+      <div style="margin-top:10px;display:flex;gap:7px;flex-wrap:wrap">
+        <button class="cta accent" onclick="startLevel(${i})">Jogar</button>
+        ${done?`<button class="cta" onclick="reviewLevel(${i})">Rever</button>`:''}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+function startLevel(n){
+  currentLevel=n; qIndex=0; locked=false; pickedAnswer=null;
+  $('#quizLevel').textContent=LEVELS[n-1].title;
+  updateQuizUI(); go('quiz');
+}
+function reviewLevel(n){ startLevel(n); }
+
+function updateQuizUI(){
+  const L=LEVELS[currentLevel-1], total=L.qs.length;
+  qIndex=Math.max(0,Math.min(qIndex,total-1));
+  const q=L.qs[qIndex];
+  $('#question').textContent=q.q;
+  $('#qIndicator').textContent=`Pergunta ${qIndex+1}/${total}`;
+  $('#bar').style.width=`${((qIndex)/total)*100}%`;
+  const ans=$('#answers'); ans.innerHTML=''; $('#projection').style.display='none';
+  q.opts.forEach((text,i)=>{
+    const b=document.createElement('button'); b.className='ans'; b.textContent=text;
+    b.onclick=()=>pick(i);
+    if(pickedAnswer===i) b.classList.add('selected');
+    ans.appendChild(b);
+  });
+  if(pickedAnswer!==null){
+    $('#projection').style.display='block';
+    $('#projection').textContent=q.proj[pickedAnswer]||'';
+  }
+}
+function pick(i){
+  if(locked) return;
+  pickedAnswer=i; updateQuizUI(); locked=true;
+}
+function nextQuestion(){
+  const L=LEVELS[currentLevel-1], q=L.qs[qIndex];
+  if(pickedAnswer===null){ alert('Escolha uma opção antes de avançar!'); return; }
+  if(!state.levelsDone[currentLevel]){
+    const coinsToAdd = q.coins[pickedAnswer];
+    state.coins = (state.coins||0) + coinsToAdd;
+    updateCoins();
+    state.levelsDone[currentLevel]=true;
+    save();
+    const tipoMap = {5:'Ruim',10:'Média',15:'Excelente'};
+    $('#finalChoice').textContent = tipoMap[coinsToAdd] || '—';
+    $('#finalCoins').textContent = coinsToAdd;
+    go('final'); return;
+  }
+  go('select');
+}
+function prevQuestion(){ pickedAnswer=null; locked=false; updateQuizUI(); }
+function exitQuiz(){ if(confirm('Deseja sair do nível? Progresso será salvo.')) go('select'); }
+function resetGame(){ if(confirm('Quer resetar tudo?')){ localStorage.removeItem(STORAGE_KEY); location.reload(); } }
+function resetProgressConfirm(){
+  if(confirm('Resetar progresso dos quizzes?')){ state.progress={}; state.levelsDone={}; save(); renderLevelSelect(); }
+}
+
+/* ===== Curiosidades (flutuante) ===== */
+// Curiosidades: abre/fecha ao clicar na lâmpada ou no X
+let curioOpen = false;
+function toggleCurio(force) {
+  const card = $('#curioCurios');
+  if (typeof force === 'boolean') {
+    curioOpen = force;
+  } else {
+    curioOpen = !curioOpen;
+  }
+  card.style.display = curioOpen ? 'block' : 'none';
+}
+$('#curioBtn').addEventListener('click', e => {
+  e.stopPropagation();
+  toggleCurio();
+});
+$('#curioCurios .closeCurio').addEventListener('click', e => {
+  e.stopPropagation();
+  toggleCurio(false);
+});
+
+/* ===== Init ===== */
+load(); go(state.user?'home':'login'); updateCoins(); applyAvatarLayers();
+</script>
+</body>
+</html>
